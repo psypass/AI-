@@ -1,0 +1,45 @@
+# 配置文件
+# 请在 GitHub Secrets 中设置以下密钥:
+# - AI_API_KEY: 阿里云 API Key (sk-02b5d38fc832476fb1eb07af55b328f7)
+# - DINGTALK_WEBHOOK: 钉钉机器人 Webhook 地址
+
+# AI 配置
+ai:
+  provider: "aliyun"
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  model: "qwen3.5-plus"
+  temperature: 0.7
+
+# arXiv 配置
+arxiv:
+  keywords:
+    - "machine learning"
+    - "deep learning"
+    - "computer vision"
+    - "natural language processing"
+  max_results: 10
+  categories:
+    - "cs.AI"
+    - "cs.LG"
+    - "cs.CV"
+    - "cs.CL"
+
+# GitHub Trending 配置
+github_trending:
+  languages:
+    - "Python"
+    - "Java"
+  time_range: "weekly"
+
+# 周报配置
+report:
+  title: "AI & Tech 周报"
+  daily_title: "AI & Tech 日报"
+  daily_output_file: "daily_report.md"
+  output_file: "weekly_report.md"
+
+# 钉钉配置
+dingtalk:
+  # Webhook 地址（建议放在 GitHub Secrets 中）
+  webhook: "https://oapi.dingtalk.com/robot/send?access_token=c9140c66dbb596f4ffde623878ad737dec67b2c2243c9884e242b3f4f6e53eae"
+  secret: ""  # 钉钉机器人安全密钥（可选）

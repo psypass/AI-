@@ -1,0 +1,47 @@
+name: Daily Report
+
+on:
+  schedule:
+    - cron: '30 8 * * *'  # 每天 08:30 执行
+  workflow_dispatch:
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Run daily report
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
+          DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
+        run: python main.py daily
+      
+      - name: Commit and push report
+        if: success()
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add daily_report.md
+          git diff --staged --quiet || git commit -m "docs: 更新日报 $(date '+%Y-%m-%d')"
+          git push
+      
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-report
+          path: daily_report.md
+          retention-days: 30
