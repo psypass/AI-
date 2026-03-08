@@ -56,7 +56,8 @@ class DingTalkNotifier:
         }
         
         try:
-            response = requests.post(url, data=json.dumps(data), timeout=10)
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(url, data=json.dumps(data), headers=headers, timeout=10)
             result = response.json()
             
             if result.get("errcode") == 0:
@@ -87,7 +88,8 @@ class DingTalkNotifier:
         }
         
         try:
-            response = requests.post(url, data=json.dumps(data), timeout=10)
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(url, data=json.dumps(data), headers=headers, timeout=10)
             result = response.json()
             
             if result.get("errcode") == 0:

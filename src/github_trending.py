@@ -42,7 +42,7 @@ def fetch_github_trending(languages: List[str] = None, time_range: str = "weekly
             response.raise_for_status()
             
             soup = BeautifulSoup(response.text, "lxml")
-            articles = soup.select("article.box-shadow")
+            articles = soup.select("article.Box-row")
             
             for article in articles[:5]:
                 try:
