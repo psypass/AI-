@@ -25,6 +25,13 @@ github_trending:
   languages:
     - "Python"
     - "TypeScript"
+  topics:
+    - "llm"
+    - "ai-agent"
+    - "agent"
+    - "gpt"
+    - "chatgpt"
+    - "openai"
   time_range: "weekly"
 
 # 周报配置

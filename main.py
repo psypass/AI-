@@ -79,7 +79,8 @@ async def generate_report(mode: str = "daily"):
     
     projects = fetch_github_trending(
         languages=config["github_trending"]["languages"],
-        time_range=config["github_trending"]["time_range"]
+        time_range=config["github_trending"]["time_range"],
+        topics=config["github_trending"].get("topics")
     )
     logger.info(f"Fetched {len(projects)} projects")
     
