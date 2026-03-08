@@ -85,23 +85,33 @@ async def generate_report(mode: str = "daily"):
     
     summarizer = create_summarizer(config["ai"])
     
+    papers_details = ""
     papers_summary = ""
+    
     if papers and os.getenv("AI_API_KEY"):
         logger.info("Generating paper summaries with AI...")
-        for i, paper in enumerate(papers[:3]):
+        for i, paper in enumerate(papers[:5]):
             paper_info = get_paper_abstract(paper)
             summary = await summarizer.summarize_paper(paper_info)
-            papers_summary += f"\n{i+1}. {paper['title'][:50]}...\n   摘要: {summary}\n"
+            papers_details += f"{i+1}. **{paper['title'][:60]}**\n   - 摘要: {summary}\n   - [论文链接](http://arxiv.org/abs/{paper['arxiv_id']})\n\n"
+        
+        papers_summary = await summarizer.summarize_papers_overall("\n\n".join([get_paper_abstract(p) for p in papers[:5]]))
     
+    projects_details = ""
     projects_summary = ""
+    
     if projects and os.getenv("AI_API_KEY"):
         logger.info("Generating project summaries with AI...")
-        projects_info = "\n\n".join([format_project_for_ai(p) for p in projects[:5]])
-        projects_summary = await summarizer.summarize_projects(projects_info)
+        for i, project in enumerate(projects[:5]):
+            project_info = format_project_for_ai(project)
+            summary = await summarizer.summarize_single_project(project_info)
+            projects_details += f"{i+1}. **[{project['full_name']}]({project['url']})** ({project['stars']} stars)\n   - {project['description'][:100]}...\n   - 点评: {summary}\n\n"
+        
+        projects_summary = await summarizer.summarize_projects("\n\n".join([format_project_for_ai(p) for p in projects[:5]]))
     
     if not os.getenv("AI_API_KEY"):
-        papers_summary = "\n".join([f"- {p['title'][:60]}" for p in papers[:5]])
-        projects_summary = "\n".join([f"- [{p['full_name']}]({p['url']}) ({p['stars']} stars)" for p in projects[:5]])
+        papers_details = "\n".join([f"- [{p['title']}](http://arxiv.org/abs/{p['arxiv_id']})" for p in papers[:5]])
+        projects_details = "\n".join([f"- [{p['full_name']}]({p['url']}) ({p['stars']} stars)" for p in projects[:5]])
     
     title = config["report"]["title"]
     week_num = datetime.now().isocalendar()[1]
@@ -109,10 +119,16 @@ async def generate_report(mode: str = "daily"):
     time_range_str = "每日" if mode == "daily" else "每周"
     report_content = f"""### 📚 arXiv 论文 ({len(papers)}篇)
 
+{papers_details}
+
+**📊 论文整体趋势:**
 {papers_summary}
 
 ### ⭐ GitHub Trending ({len(projects)}个)
 
+{projects_details}
+
+**📊 项目整体趋势:**
 {projects_summary}
 
 ---

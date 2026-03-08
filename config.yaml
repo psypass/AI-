@@ -24,7 +24,7 @@ arxiv:
 github_trending:
   languages:
     - "Python"
-    - "Java"
+    - "TypeScript"
   time_range: "weekly"
 
 # 周报配置

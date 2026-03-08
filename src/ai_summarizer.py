@@ -85,6 +85,36 @@ class AISummarizer:
         
         return await self._call_api(messages)
     
+    async def summarize_single_project(self, project_info: str) -> str:
+        """对单个 GitHub 项目生成点评"""
+        system_prompt = """你是一个技术评论员。请简洁点评以下GitHub项目，突出其亮点和适用场景。
+要求：
+1. 用中文输出
+2. 控制在50字以内
+3. 客观有见地"""
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": project_info}
+        ]
+        
+        return await self._call_api(messages)
+    
+    async def summarize_papers_overall(self, papers_info: str) -> str:
+        """对多篇论文生成整体趋势总结"""
+        system_prompt = """你是一个AI技术趋势分析师。请分析以下多篇论文，总结整体技术趋势和研究方向。
+要求：
+1. 用中文输出
+2. 控制在150字以内
+3. 归纳共性技术方向"""
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": papers_info}
+        ]
+        
+        return await self._call_api(messages)
+    
     async def summarize_weekly(self, papers_summary: str, projects_summary: str) -> str:
         """生成周报摘要"""
         system_prompt = """你是一个科技周报编辑。请根据以下内容生成一份简洁的周报摘要。
