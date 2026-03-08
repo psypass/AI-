@@ -1,8 +1,4 @@
 # 配置文件
-# 请在 GitHub Secrets 中设置以下密钥:
-# - AI_API_KEY: 阿里云 API Key (sk-02b5d38fc832476fb1eb07af55b328f7)
-# - DINGTALK_WEBHOOK: 钉钉机器人 Webhook 地址
-
 # AI 配置
 ai:
   provider: "aliyun"
