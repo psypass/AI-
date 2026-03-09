@@ -115,26 +115,46 @@ class AISummarizer:
         
         return await self._call_api(messages)
     
-    async def summarize_weekly(self, papers_summary: str, projects_summary: str) -> str:
-        """生成周报摘要"""
-        system_prompt = """你是一个科技周报编辑。请根据以下内容生成一份简洁的周报摘要。
+    async def summarize_all(self, papers_info: str, projects_info: str) -> Dict:
+        """一次性生成论文摘要、项目点评和趋势总结"""
+        system_prompt = """你是一个AI技术周报助手。请根据以下内容生成周报。
 要求：
 1. 用中文输出
-2. 控制在200字以内
-3. 突出本周重点技术和趋势"""
-        
-        content = f"""## arXiv 论文亮点
-{papers_summary}
+2. 返回JSON格式，包含以下字段：
+   - papers_summary: 每篇论文的摘要（数组，每项包含title和summary）
+   - projects_summary: 每个项目的点评（数组，每项包含full_name和summary）
+   - papers_trend: 论文整体趋势（50字以内）
+   - projects_trend: 项目整体趋势（50字以内）
+3. 简洁有重点"""
 
-## GitHub 趋势项目
-{projects_summary}"""
-        
+        content = f"""## arXiv论文
+{papers_info}
+
+## GitHubTrending项目
+{projects_info}"""
+
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": content}
         ]
+
+        result = await self._call_api(messages)
         
-        return await self._call_api(messages)
+        try:
+            import json
+            import re
+            json_match = re.search(r'\{[\s\S]*\}', result)
+            if json_match:
+                return json.loads(json_match.group())
+        except:
+            pass
+        
+        return {
+            "papers_summary": [],
+            "projects_summary": [],
+            "papers_trend": result[:100],
+            "projects_trend": result[:100]
+        }
 
 
 def create_summarizer(config: Dict) -> AISummarizer:

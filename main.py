@@ -88,27 +88,28 @@ async def generate_report(mode: str = "daily"):
     
     papers_details = ""
     papers_summary = ""
-    
-    if papers and os.getenv("AI_API_KEY"):
-        logger.info("Generating paper summaries with AI...")
-        for i, paper in enumerate(papers[:5]):
-            paper_info = get_paper_abstract(paper)
-            summary = await summarizer.summarize_paper(paper_info)
-            papers_details += f"{i+1}. **{paper['title'][:60]}**\n   - 摘要: {summary}\n   - [论文链接](http://arxiv.org/abs/{paper['arxiv_id']})\n\n"
-        
-        papers_summary = await summarizer.summarize_papers_overall("\n\n".join([get_paper_abstract(p) for p in papers[:5]]))
-    
     projects_details = ""
     projects_summary = ""
     
-    if projects and os.getenv("AI_API_KEY"):
-        logger.info("Generating project summaries with AI...")
+    if papers and projects and os.getenv("AI_API_KEY"):
+        logger.info("Generating all summaries with AI in one call...")
+        papers_info = "\n\n".join([get_paper_abstract(p) for p in papers[:5]])
+        projects_info = "\n\n".join([format_project_for_ai(p) for p in projects[:10]])
+        
+        result = await summarizer.summarize_all(papers_info, projects_info)
+        
+        papers_list = result.get("papers_summary", [])
+        for i, paper in enumerate(papers[:5]):
+            summary = papers_list[i].get("summary", "") if i < len(papers_list) else ""
+            papers_details += f"{i+1}. **{paper['title'][:60]}**\n   - 摘要: {summary}\n   - [论文链接](http://arxiv.org/abs/{paper['arxiv_id']})\n\n"
+        
+        projects_list = result.get("projects_summary", [])
         for i, project in enumerate(projects[:10]):
-            project_info = format_project_for_ai(project)
-            summary = await summarizer.summarize_single_project(project_info)
+            summary = projects_list[i].get("summary", "") if i < len(projects_list) else ""
             projects_details += f"{i+1}. **[{project['full_name']}]({project['url']})** ({project['stars']} stars)\n   - {project['description'][:200]}\n   - 点评: {summary}\n\n"
         
-        projects_summary = await summarizer.summarize_projects("\n\n".join([format_project_for_ai(p) for p in projects[:10]]))
+        papers_summary = result.get("papers_trend", "")
+        projects_summary = result.get("projects_trend", "")
     
     if not os.getenv("AI_API_KEY"):
         papers_details = "\n".join([f"- [{p['title']}](http://arxiv.org/abs/{p['arxiv_id']})" for p in papers[:5]])
