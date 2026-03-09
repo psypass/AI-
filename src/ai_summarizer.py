@@ -115,6 +115,85 @@ class AISummarizer:
         
         return await self._call_api(messages)
     
+    async def summarize_papers_batch(self, papers_info: str) -> List[Dict]:
+        """批量生成论文摘要（5篇一起）"""
+        system_prompt = """你是一个AI技术论文助手。请为以下5篇论文分别生成摘要。
+要求：
+1. 用中文输出
+2. 返回JSON格式数组，每个元素包含：title（论文标题简写）和summary（摘要，50字以内）
+3. 突出技术亮点和实际应用价值"""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": papers_info}
+        ]
+
+        result = await self._call_api(messages)
+        
+        try:
+            import json
+            import re
+            json_match = re.search(r'\[[\s\S]*\]', result)
+            if json_match:
+                return json.loads(json_match.group())
+        except:
+            pass
+        
+        return []
+    
+    async def summarize_projects_batch(self, projects_info: str) -> List[Dict]:
+        """批量生成项目点评（10个一起）"""
+        system_prompt = """你是一个技术评论员。请为以下10个GitHub项目分别生成点评。
+要求：
+1. 用中文输出
+2. 返回JSON格式数组，每个元素包含：full_name（项目名）和summary（点评，50字以内）
+3. 突出亮点和适用场景"""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": projects_info}
+        ]
+
+        result = await self._call_api(messages)
+        
+        try:
+            import json
+            import re
+            json_match = re.search(r'\[[\s\S]*\]', result)
+            if json_match:
+                return json.loads(json_match.group())
+        except:
+            pass
+        
+        return []
+    
+    async def summarize_overall(self, papers_details: str, projects_details: str, papers_trend: str, projects_trend: str) -> str:
+        """最终整体总结"""
+        system_prompt = """你是一个科技周报编辑。请根据以下内容生成一份简洁的整体摘要。
+要求：
+1. 用中文输出
+2. 控制在200字以内
+3. 突出本周重点技术和趋势"""
+
+        content = f"""## 论文摘要
+{papers_details}
+
+## 论文趋势
+{papers_trend}
+
+## 项目点评
+{projects_details}
+
+## 项目趋势
+{projects_trend}"""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": content}
+        ]
+        
+        return await self._call_api(messages)
+    
     async def summarize_all(self, papers_info: str, projects_info: str) -> Dict:
         """一次性生成论文摘要、项目点评和趋势总结"""
         system_prompt = """你是一个AI技术周报助手。请根据以下内容生成周报。
