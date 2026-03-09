@@ -3,7 +3,7 @@
 ai:
   provider: "siliconflow"
   base_url: "https://api.siliconflow.cn/v1"
-  model: "Qwen/Qwen2.5-7B-Instruct"
+  model: "Pro/MiniMaxAI/MiniMax-M2.5"
   temperature: 0.7
 
 # arXiv 配置
